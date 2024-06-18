@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         "custom-bg": "#1a202c", // Aquí puedes poner tu color personalizado
+        "customT-bg": "#0066FE", // Aquí puedes poner tu color personalizado
       },
     },
   },
