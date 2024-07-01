@@ -1,22 +1,25 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import LoginPage from "./pages/Login/LoginPage";
-import LoginLayout from "./layout/LoginLayout";
-import LoginVerificar from "./pages/Login/LoginVerificar";
-import LoginPassword from "./pages/Login/LoginPassword";
-import DashboardLayout from "./layout/DashboardLayout";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import {
+  LoginPage,
+  LoginPassword,
+  LoginVerificar,
+  VistasPage,
+  DetallePage,
+} from "./pages";
+import { DashboardLayout, LoginLayout } from "./layout";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<LoginLayout />}>
-          <Route path="/login-verificar" element={<LoginVerificar />} index />
-          <Route path="/login-password" element={<LoginPassword />} index />
+          <Route path="/login-verificar" element={<LoginVerificar />} />
+          <Route path="/login-password" element={<LoginPassword />} />
           <Route path="/login" element={<LoginPage />} index />
         </Route>
         <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} index />
+          <Route path="/vistas" element={<VistasPage />} index />
+          <Route path="/detalle" element={<DetallePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

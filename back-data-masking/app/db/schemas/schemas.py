@@ -47,7 +47,6 @@ class Param(ParamBase):
 
 #T_DMASK_LOG_ACCESOS  
 class LogAccesoBase(BaseModel):
-    log_acceso_id: int
     usuario_tx: str
     inicio_log_acceso_fh: datetime
     fin_log_acceso_fh: datetime

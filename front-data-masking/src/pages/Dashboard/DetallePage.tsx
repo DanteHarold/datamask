@@ -1,8 +1,17 @@
 import { Button, Input } from "@headlessui/react";
-export default function TableDetalle() {
+import { useEffect } from "react";
+import { useAppStore } from "../../stores/useAppStore";
+import DetalleRow from "../../components/Dashboard/DetalleRow";
+export default function DetallePage() {
+  const fetchEventos = useAppStore((state) => state.fetchEventos);
+  const eventos = useAppStore((state) => state.eventos);
+  useEffect(() => {
+    fetchEventos();
+  }, []);
+  console.log(eventos);
   return (
     <section className="bg-blueGray-50">
-      <div className="flex flex-col xl:w-10/12 mb-12 xl:mb-0 px-4 mx-auto  ">
+      <div className="flex flex-col xl:w-10/12 mb-12 xl:mb-0 px-4 mx-auto ">
         <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-4 shadow-lg rounded ">
           <div className="rounded-t mb-0 px-4 py-3 border-0">
             <div className="flex flex-wrap items-center">
@@ -81,7 +90,10 @@ export default function TableDetalle() {
               </thead>
 
               <tbody>
-                <tr>
+                {eventos.map((evento) => (
+                  <DetalleRow key={evento.evento_id} evento={evento} />
+                ))}
+                {/* <tr>
                   <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
                     vw_cliente
                   </th>
@@ -136,21 +148,7 @@ export default function TableDetalle() {
                   <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
                     <Input type="checkbox" className=""></Input>
                   </td>
-                </tr>
-                <tr>
-                  <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
-                    vw_cliente
-                  </th>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>2 Horas</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>1:33</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
-                    <Input type="checkbox" className=""></Input>
-                  </td>
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>

@@ -7,6 +7,9 @@ from app.db.schemas import  schemas
 def get_param(db: Session, usuario_tx: str):
     return db.query(models.TDMASKParams).filter(models.TDMASKParams.usuario_tx == usuario_tx).first()
 
+def get_all_params(db: Session):
+    return db.query(models.TDMASKParams).all()
+
 def create_param(db: Session, param: schemas.ParamCreate):
     db_param = models.TDMASKParams(**param.dict())
     db.add(db_param)

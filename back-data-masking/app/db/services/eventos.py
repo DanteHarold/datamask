@@ -7,6 +7,9 @@ from app.db import models
 def get_evento(db: Session, evento_id: int):
     return db.query(models.TDMASKEventos).filter(models.TDMASKEventos.evento_id == evento_id).first()
 
+def get_all_eventos(db: Session):
+    return db.query(models.TDMASKEventos).all()
+
 def create_evento(db: Session, evento: schemas.EventoCreate):
     db_evento = models.TDMASKEventos(**evento.dict())
     db.add(db_evento)

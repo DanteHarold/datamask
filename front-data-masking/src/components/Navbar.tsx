@@ -1,25 +1,33 @@
+import { NavLink } from "react-router-dom";
+
 export default function Navbar() {
   return (
     <nav className="flex dark:bg-slate-900 items-center relative justify-between mx-auto px-5 py-6 md:w-4/5 lg:w-3/5">
       <div>
         <img src="/Telefonica New.png" className="w-18 h-12" alt="" />
       </div>
-      <ul
-        id="drawer"
-        role="menu"
-        className="sm:gap-3 transition-left ease-[cubic-bezier(0.4, 0.0, 0.2, 1)] delay-150  sm:flex  flex flex-col cursor-pointer absolute min-h-screen -left-48 sm:static w-48 top-0 bg-white sm:shadow-none shadow-xl sm:bg-transparent sm:flex-row sm:w-auto sm:min-h-0 dark:bg-slate-900 "
-      >
-        <li className="font-medium text-sm p-3 hover:bg-slate-300 dark:hover:bg-slate-800 sm:p-0 sm:hover:bg-transparent text-primary">
-          <a href="#" className="text-2xl text-customT-bg">
-            Vistas
-          </a>
-        </li>
-        <li className="font-medium text-sm p-3 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-800 sm:p-0 sm:hover:bg-transparent text-gray-600 hover:text-primary transition-colors">
-          <a href="#" className="text-2xl dark:text-white">
-            Detalle
-          </a>
-        </li>
-      </ul>
+      <nav className="sm:gap-3 transition-left ease-[cubic-bezier(0.4, 0.0, 0.2, 1)] delay-150  sm:flex  flex flex-col cursor-pointer absolute min-h-screen -left-48 sm:static w-48 top-0 bg-white sm:shadow-none shadow-xl sm:bg-transparent sm:flex-row sm:w-auto sm:min-h-0 dark:bg-slate-900 gap-4">
+        <NavLink
+          to="/vistas"
+          className={({ isActive }) =>
+            isActive
+              ? "text-customT-bg uppercase font-bold"
+              : "dark:text-white uppercase font-bold"
+          }
+        >
+          Vistas
+        </NavLink>
+        <NavLink
+          to="/detalle"
+          className={({ isActive }) =>
+            isActive
+              ? "text-customT-bg uppercase font-bold"
+              : "dark:text-white uppercase font-bold"
+          }
+        >
+          Detalle
+        </NavLink>
+      </nav>
       <div className="flex gap-3 items-center">
         <div className="h-10 w-10 hover:ring-4 user cursor-pointer relative ring-blue-700/30 rounded-full bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')]">
           <div className="drop-down  w-48 overflow-hidden bg-white rounded-md shadow absolute top-12 right-3 z-10">

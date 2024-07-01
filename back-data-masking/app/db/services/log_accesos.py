@@ -5,6 +5,9 @@ from app.db.schemas import schemas
 def get_log_acceso(db: Session, log_acceso_id: int):
     return db.query(models.TDMASKLogAccesos).filter(models.TDMASKLogAccesos.log_acceso_id == log_acceso_id).first()
 
+def get_all_log_accesos(db: Session):
+    return db.query(models.TDMASKLogAccesos).all()
+
 def create_log_acceso(db: Session, log_acceso: schemas.LogAccesoCreate):
     db_log_acceso = models.TDMASKLogAccesos(**log_acceso.dict())
     db.add(db_log_acceso)

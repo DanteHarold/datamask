@@ -2,6 +2,10 @@ from sqlalchemy.orm import Session
 from app.db import models
 from app.db.schemas import  schemas
 
+
+def get_all_usuarios(db: Session):
+    return db.query(models.TDMASKUsuarios).all()
+
 def get_usuario(db: Session, usuario_tx: str):
     return db.query(models.TDMASKUsuarios).filter(models.TDMASKUsuarios.usuario_tx == usuario_tx).first()
 
