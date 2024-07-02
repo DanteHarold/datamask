@@ -4,6 +4,15 @@ import { useAppStore } from "../../stores/useAppStore";
 import VistaRow from "../../components/Dashboard/VistaRow";
 import { getCurrentDateFormatted } from "../../helpers/dateUtils";
 
+interface SelectedRow {
+  duration: number;
+  id: number;
+  isSelected: Boolean;
+}
+
+// Definición del tipo para el estado que contiene todas las filas seleccionadas
+type SelectedRowsState = Record<number, SelectedRow>;
+
 export default function VistasPage() {
   const fetchVistas = useAppStore((state) => state.fetchVistas);
   const fetchParam = useAppStore((state) => state.fetchParam);
@@ -11,19 +20,22 @@ export default function VistasPage() {
     (state) => state.fetchVistasNoAsignadas
   );
   const postLog = useAppStore((state) => state.fetchLog);
+  const postEvento = useAppStore((state) => state.postEventos);
   const vistas = useAppStore((state) => state.vistas);
   const params = useAppStore((state) => state.params);
   const vistasNoAsignadas = useAppStore((state) => state.vistasNoAsignadas);
   const log = useAppStore((state) => state.log);
-
+  const usuarioLogueado = useAppStore((state) => state.usuarioLogueado);
+  const userActive = localStorage.getItem("datamaskuser");
+  console.log("userActive", userActive);
+  // useEffect(() => {
+  //   fetchVistas();
+  // }, []);
   useEffect(() => {
-    fetchVistas();
+    fetchParam(usuarioLogueado.user);
   }, []);
   useEffect(() => {
-    fetchParam("user1");
-  }, []);
-  useEffect(() => {
-    fetchVistasNoAsignadas("user1");
+    fetchVistasNoAsignadas(userActive!);
   }, []);
   useEffect(() => {
     if (params.usuario_tx) {
@@ -31,27 +43,59 @@ export default function VistasPage() {
       console.log("Antes de Post ", params.usuario_tx);
       const data = {
         usuario_tx: params.usuario_tx,
-        inicio_log_acceso_fh: "2024-07-01T11:10:32.431Z",
-        fin_log_acceso_fh: "2024-07-01T11:10:32.431Z",
+        inicio_log_acceso_fh: new Date(),
+        fin_log_acceso_fh: new Date(),
       };
       postLog(data);
     }
   }, [params.usuario_tx]);
-  const [selectedRows, setSelectedRows] = useState({});
+  const [selectedRows, setSelectedRows] = useState<SelectedRowsState>({});
   const handleRowChange = (
     id: number,
     isSelected: Boolean,
     duration: number
   ) => {
-    setSelectedRows((prev) => ({
-      ...prev,
-      [id]: isSelected ? { id, isSelected, duration } : undefined,
-    }));
+    setSelectedRows((prev) => {
+      const newState = { ...prev }; // Hacer una copia del estado actual
+
+      if (isSelected) {
+        // Si está seleccionado, actualizar o agregar el elemento con nuevos valores
+        newState[id] = { id, isSelected, duration };
+      } else {
+        // Si no está seleccionado, eliminar el elemento del estado
+        delete newState[id];
+      }
+
+      return newState; // Devolver el nuevo estado que siempre será un SelectedRowsState
+    });
   };
 
   const handleConfirm = () => {
     console.log("Selected Rows:", selectedRows);
-    console.log("Param", params);
+    const selectedItemsArray = Object.keys(selectedRows)
+      .map((key) => parseInt(key, 10))
+      .filter((key) => selectedRows[key].isSelected)
+      .map((key) => selectedRows[key]);
+    console.log(selectedItemsArray);
+    try {
+      const requests = selectedItemsArray.map((item) =>
+        postEvento({
+          usuario_tx: userActive!,
+          vista_acceso_id: item.id,
+          log_acceso_id: 204,
+          solicitud_evento_fh: new Date(),
+          tiempo_permiso_evento_fh: item.duration,
+          validacion_creacion_fl: 1,
+          inicio_evento_fh: new Date(),
+          fin_evento_fh: new Date(),
+          estado_evento_fl: 1,
+          cancelacion_evento_fh: null,
+        })
+      );
+      console.log("Requests :", { requests });
+    } catch (error) {
+      console.error("Error al enviar los datos:", error);
+    }
   };
   return (
     <section className="bg-blueGray-50">
@@ -115,30 +159,34 @@ export default function VistasPage() {
           </div>
 
           <div className="block w-full overflow-x-auto">
-            <table className="items-center bg-transparent w-full border-collapse ">
-              <thead>
-                <tr>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Nombre
-                  </th>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Acceso
-                  </th>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Duración
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {vistasNoAsignadas.map((vista) => (
-                  <VistaRow
-                    key={vista.vista_acceso_id}
-                    vistaNombre={vista}
-                    onChange={handleRowChange}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <div
+              style={{ width: "100%", maxHeight: "300px", overflowY: "auto" }}
+            >
+              <table className="items-center bg-transparent w-full border-collapse ">
+                <thead>
+                  <tr>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Nombre
+                    </th>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Acceso
+                    </th>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Duración
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vistasNoAsignadas.map((vista) => (
+                    <VistaRow
+                      key={vista.vista_acceso_id}
+                      vistaNombre={vista}
+                      onChange={handleRowChange}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
         <Button

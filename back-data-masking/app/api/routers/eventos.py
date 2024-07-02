@@ -21,6 +21,13 @@ def read_evento(evento_id: int, db: Session = Depends(get_db)):
 def read_all_eventos(db: Session = Depends(get_db)):
     return crudeventos.get_all_eventos(db)
 
+@router.get("/eventos/{usuario_tx}", response_model=list[schemas.Evento])
+def list_eventos_by_usuario(usuario_tx: str, db: Session = Depends(get_db)):
+    eventos = crudeventos.get_eventos_by_usuario(db, usuario_tx)
+    if not eventos:
+        raise HTTPException(status_code=404, detail="Eventos no encontrados para el usuario proporcionado")
+    return eventos
+
 @router.put("/{evento_id}", response_model=schemas.Evento)
 def update_evento(evento_id: int, evento: schemas.EventoCreate, db: Session = Depends(get_db)):
     db_evento = crudeventos.update_evento(db, evento_id, evento)

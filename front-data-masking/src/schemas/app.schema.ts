@@ -5,6 +5,13 @@ export const UsuarioAPIResponsSchema = z.object({
   usuario_tx: z.string(),
   clave_usuario_de: z.string(),
 });
+export const UsuarioAPIResponsSchemaRegister = z.object({
+  usuario_tx: z.string(),
+});
+export const UsuarioAPIResponsSchemaLogin = z.object({
+  message: z.string(),
+  user: z.string(),
+});
 export const UsuariosAPIResponseSchema = z.object({
   usuarios: z.array(UsuarioAPIResponsSchema),
 });
@@ -43,12 +50,30 @@ export const EventoAPIResponsSchema = z.object({
   estado_evento_fl: z.number(),
   cancelacion_evento_fh: z.string().nullable(),
 });
+export const EventoAPIResponsSchemaPost = z.object({
+  usuario_tx: z.string(),
+  vista_acceso_id: z.number(),
+  log_acceso_id: z.number(),
+  solicitud_evento_fh: z.date(),
+  tiempo_permiso_evento_fh: z.number(),
+  validacion_creacion_fl: z.number(),
+  inicio_evento_fh: z.date(),
+  fin_evento_fh: z.date(),
+  estado_evento_fl: z.number(),
+  cancelacion_evento_fh: z.string().nullable(),
+});
 export const EventosAPIResponseSchema = z.array(EventoAPIResponsSchema);
 
 //* Log_Accesos -> Log que registra la fecha de acceso y salida ('Detalle')
 export const LogAPIResponsSchema = z.object({
+  log_acceso_id: z.number(),
   usuario_tx: z.string(),
   inicio_log_acceso_fh: z.string(),
   fin_log_acceso_fh: z.string(),
+});
+export const LogAPIResponsSchemaPost = z.object({
+  usuario_tx: z.string(),
+  inicio_log_acceso_fh: z.date(),
+  fin_log_acceso_fh: z.date(),
 });
 export const LogsAPIResponseSchema = z.array(LogAPIResponsSchema);

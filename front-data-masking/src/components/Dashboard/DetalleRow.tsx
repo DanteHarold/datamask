@@ -1,9 +1,17 @@
 import { Input } from "@headlessui/react";
 import { Evento } from "../../types";
+import { useState } from "react";
 type EventosProps = {
   evento: Evento;
+  onChange: (id: number, isSelected: boolean) => void;
 };
-export default function DetalleRow({ evento }: EventosProps) {
+export default function DetalleRow({ evento, onChange }: EventosProps) {
+  const [isSelected, setIsSelected] = useState(false);
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsSelected(e.target.checked);
+    onChange(evento.evento_id, e.target.checked);
+  };
   return (
     <>
       <tr>
@@ -20,7 +28,11 @@ export default function DetalleRow({ evento }: EventosProps) {
           <p>{evento.solicitud_evento_fh}</p>
         </td>
         <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
-          <Input type="checkbox" className=""></Input>
+          <Input
+            type="checkbox"
+            className=""
+            onChange={handleCheckboxChange}
+          ></Input>
         </td>
       </tr>
     </>

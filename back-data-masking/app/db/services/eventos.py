@@ -10,6 +10,9 @@ def get_evento(db: Session, evento_id: int):
 def get_all_eventos(db: Session):
     return db.query(models.TDMASKEventos).all()
 
+def get_eventos_by_usuario(db: Session, usuario_tx: str):
+    return db.query(models.TDMASKEventos).filter(models.TDMASKEventos.usuario_tx == usuario_tx).all()
+
 def create_evento(db: Session, evento: schemas.EventoCreate):
     db_evento = models.TDMASKEventos(**evento.dict())
     db.add(db_evento)

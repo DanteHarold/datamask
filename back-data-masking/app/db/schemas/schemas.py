@@ -5,10 +5,9 @@ from datetime import datetime
 # T_DMASK_USUARIOS
 class UsuarioBase(BaseModel):
     usuario_tx: str
-    clave_usuario_de: str
 
 class UsuarioCreate(UsuarioBase):
-    pass
+    clave_usuario_de: str
 
 class Usuario(UsuarioBase):
     class Config:
@@ -55,6 +54,7 @@ class LogAccesoCreate(LogAccesoBase):
     pass
 
 class LogAcceso(LogAccesoBase):
+    log_acceso_id: int
     class Config:
         orm_mode = True
 
@@ -72,7 +72,6 @@ class VistaAcceso(VistaAccesoBase):
 
 #T_DMASK_EVENTOS
 class EventoBase(BaseModel):
-    evento_id: int
     usuario_tx: str
     vista_acceso_id: int
     log_acceso_id: int
@@ -88,5 +87,6 @@ class EventoCreate(EventoBase):
     pass
 
 class Evento(EventoBase):
+    evento_id: int
     class Config:
         orm_mode = True

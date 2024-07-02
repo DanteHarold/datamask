@@ -1,14 +1,59 @@
 import { Button, Input } from "@headlessui/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "../../stores/useAppStore";
 import DetalleRow from "../../components/Dashboard/DetalleRow";
+import { deleteEventos } from "../../services/AppService";
+import { useNavigate } from "react-router-dom";
+interface SelectedRow {
+  id: number;
+  isSelected: Boolean;
+}
+type SelectedRowsState = Record<number, SelectedRow>;
 export default function DetallePage() {
-  const fetchEventos = useAppStore((state) => state.fetchEventos);
+  // const fetchEventos = useAppStore((state) => state.fetchEventos);
+  const fetchEventosByUser = useAppStore((state) => state.fetchEventosByUser);
   const eventos = useAppStore((state) => state.eventos);
+  const userActive = localStorage.getItem("datamaskuser");
+  const navigate = useNavigate();
+  // useEffect(() => {
+  //   fetchEventos();
+  // }, []);
   useEffect(() => {
-    fetchEventos();
+    fetchEventosByUser(userActive!);
   }, []);
   console.log(eventos);
+  const [selectedRows, setSelectedRows] = useState<SelectedRowsState>({});
+  const handleRowChange = (id: number, isSelected: Boolean) => {
+    setSelectedRows((prev) => {
+      const newState = { ...prev }; // Hacer una copia del estado actual
+
+      if (isSelected) {
+        // Si está seleccionado, actualizar o agregar el elemento con nuevos valores
+        newState[id] = { id, isSelected };
+      } else {
+        // Si no está seleccionado, eliminar el elemento del estado
+        delete newState[id];
+      }
+
+      return newState; // Devolver el nuevo estado que siempre será un SelectedRowsState
+    });
+  };
+  const handleConfirm = () => {
+    console.log("Selected Rows:", selectedRows);
+    const selectedItemsArray = Object.keys(selectedRows)
+      .map((key) => parseInt(key, 10))
+      .filter((key) => selectedRows[key].isSelected)
+      .map((key) => selectedRows[key]);
+    console.log(selectedItemsArray);
+    try {
+      const requests = selectedItemsArray.map((item) => deleteEventos(item.id));
+      console.log("Requests :", { requests });
+      navigate("/detalle");
+      location.reload();
+    } catch (error) {
+      console.error("Error al enviar los datos:", error);
+    }
+  };
   return (
     <section className="bg-blueGray-50">
       <div className="flex flex-col xl:w-10/12 mb-12 xl:mb-0 px-4 mx-auto ">
@@ -71,89 +116,44 @@ export default function DetallePage() {
           </div>
 
           <div className="block w-full overflow-x-auto">
-            <table className="items-center bg-transparent w-full border-collapse ">
-              <thead>
-                <tr>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Nombre
-                  </th>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Duración
-                  </th>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Tiempo Restante
-                  </th>
-                  <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                    Eliminar
-                  </th>
-                </tr>
-              </thead>
+            <div
+              style={{ width: "100%", maxHeight: "300px", overflowY: "auto" }}
+            >
+              <table className="items-center bg-transparent w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Nombre
+                    </th>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Duración
+                    </th>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Tiempo Restante
+                    </th>
+                    <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                      Eliminar
+                    </th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {eventos.map((evento) => (
-                  <DetalleRow key={evento.evento_id} evento={evento} />
-                ))}
-                {/* <tr>
-                  <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
-                    vw_cliente
-                  </th>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>2 Horas</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>1:33</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
-                    <Input type="checkbox" className=""></Input>
-                  </td>
-                </tr>
-                <tr>
-                  <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
-                    vw_cliente
-                  </th>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>2 Horas</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>1:33</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
-                    <Input type="checkbox" className=""></Input>
-                  </td>
-                </tr>
-                <tr>
-                  <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
-                    vw_cliente
-                  </th>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>2 Horas</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>1:33</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
-                    <Input type="checkbox" className=""></Input>
-                  </td>
-                </tr>
-                <tr>
-                  <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
-                    vw_cliente
-                  </th>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>2 Horas</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                    <p>1:33</p>
-                  </td>
-                  <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-center">
-                    <Input type="checkbox" className=""></Input>
-                  </td>
-                </tr> */}
-              </tbody>
-            </table>
+                <tbody>
+                  {eventos.map((evento) => (
+                    <DetalleRow
+                      key={evento.evento_id}
+                      evento={evento}
+                      onChange={handleRowChange}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-        <Button className="rounded-md bg-gray-700 py-1.5 px-5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-600 text-center mx-auto">
+        <Button
+          className="rounded-md bg-gray-700 py-1.5 px-5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-600 text-center mx-auto"
+          onClick={handleConfirm}
+        >
           Confirmar
         </Button>
       </div>
