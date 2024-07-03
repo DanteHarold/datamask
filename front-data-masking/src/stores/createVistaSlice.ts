@@ -7,6 +7,7 @@ export type VistasSliceType = {
   vistasNoAsignadas: Vistas;
   fetchVistas: () => Promise<void>;
   fetchVistasNoAsignadas: (id: Param["usuario_tx"]) => Promise<void>;
+  removeVistasByIds: (idsToRemove: number[]) => void;
 };
 export const createVistaSlice: StateCreator<VistasSliceType> = (set) => ({
   vistas: [],
@@ -19,4 +20,10 @@ export const createVistaSlice: StateCreator<VistasSliceType> = (set) => ({
     const vistasNoAsignadas = await getVistasNoAsignadas(id);
     set({ vistasNoAsignadas });
   },
+  removeVistasByIds: (idsToRemove) =>
+    set((state) => ({
+      vistasNoAsignadas: state.vistasNoAsignadas.filter(
+        (vista) => !idsToRemove.includes(vista.vista_acceso_id)
+      ),
+    })),
 });

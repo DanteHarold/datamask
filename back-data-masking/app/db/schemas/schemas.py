@@ -88,5 +88,10 @@ class EventoCreate(EventoBase):
 
 class Evento(EventoBase):
     evento_id: int
+    nombre_vista_acceso_de: str  # Agrega el nombre de la vista
+    class Config:
+        orm_mode = True
+class EventoGet(EventoBase):
+    evento_id: int
     class Config:
         orm_mode = True

@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { useAppStore } from "../../stores/useAppStore";
 import VistaRow from "../../components/Dashboard/VistaRow";
 import { getCurrentDateFormatted } from "../../helpers/dateUtils";
-
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useNavigate } from "react-router-dom";
 interface SelectedRow {
   duration: number;
   id: number;
@@ -14,41 +16,34 @@ interface SelectedRow {
 type SelectedRowsState = Record<number, SelectedRow>;
 
 export default function VistasPage() {
-  const fetchVistas = useAppStore((state) => state.fetchVistas);
+  const updateEventosByIds = useAppStore((state) => state.removeVistasByIds);
   const fetchParam = useAppStore((state) => state.fetchParam);
   const fetchVistasNoAsignadas = useAppStore(
     (state) => state.fetchVistasNoAsignadas
   );
-  const postLog = useAppStore((state) => state.fetchLog);
   const postEvento = useAppStore((state) => state.postEventos);
-  const vistas = useAppStore((state) => state.vistas);
   const params = useAppStore((state) => state.params);
   const vistasNoAsignadas = useAppStore((state) => state.vistasNoAsignadas);
-  const log = useAppStore((state) => state.log);
-  const usuarioLogueado = useAppStore((state) => state.usuarioLogueado);
-  const userActive = localStorage.getItem("datamaskuser");
+
+  const [userActive, setUserActive] = useState(
+    localStorage.getItem("datamaskuser")
+  );
+  const [userLog, serUserLog] = useState(
+    JSON.parse(localStorage.getItem("datamasklog")!)
+  );
+  const navigate = useNavigate();
+  const MySwal = withReactContent(Swal);
   console.log("userActive", userActive);
+  console.log("userLog", userLog);
   // useEffect(() => {
   //   fetchVistas();
   // }, []);
   useEffect(() => {
-    fetchParam(usuarioLogueado.user);
+    fetchParam(userActive!);
   }, []);
   useEffect(() => {
     fetchVistasNoAsignadas(userActive!);
   }, []);
-  useEffect(() => {
-    if (params.usuario_tx) {
-      // Solo ejecutar si params.usuario_tx está definido
-      console.log("Antes de Post ", params.usuario_tx);
-      const data = {
-        usuario_tx: params.usuario_tx,
-        inicio_log_acceso_fh: new Date(),
-        fin_log_acceso_fh: new Date(),
-      };
-      postLog(data);
-    }
-  }, [params.usuario_tx]);
   const [selectedRows, setSelectedRows] = useState<SelectedRowsState>({});
   const handleRowChange = (
     id: number,
@@ -70,7 +65,7 @@ export default function VistasPage() {
     });
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     console.log("Selected Rows:", selectedRows);
     const selectedItemsArray = Object.keys(selectedRows)
       .map((key) => parseInt(key, 10))
@@ -78,21 +73,43 @@ export default function VistasPage() {
       .map((key) => selectedRows[key]);
     console.log(selectedItemsArray);
     try {
-      const requests = selectedItemsArray.map((item) =>
-        postEvento({
-          usuario_tx: userActive!,
-          vista_acceso_id: item.id,
-          log_acceso_id: 204,
-          solicitud_evento_fh: new Date(),
-          tiempo_permiso_evento_fh: item.duration,
-          validacion_creacion_fl: 1,
-          inicio_evento_fh: new Date(),
-          fin_evento_fh: new Date(),
-          estado_evento_fl: 1,
-          cancelacion_evento_fh: null,
-        })
+      const requests = await Promise.all(
+        selectedItemsArray.map((item) =>
+          postEvento({
+            usuario_tx: userActive!,
+            vista_acceso_id: item.id,
+            log_acceso_id: userLog,
+            solicitud_evento_fh: new Date(),
+            tiempo_permiso_evento_fh: item.duration,
+            validacion_creacion_fl: 1,
+            inicio_evento_fh: new Date(),
+            fin_evento_fh: new Date(),
+            estado_evento_fl: 1,
+            cancelacion_evento_fh: null,
+          })
+        )
       );
-      console.log("Requests :", { requests });
+      console.log("Requests :", requests);
+      // Obtener los IDs de los eventos eliminados
+      const idsRemoved = selectedItemsArray.map((item) => item.id);
+      console.log("idsRemoved", idsRemoved);
+      updateEventosByIds(idsRemoved);
+
+      const isSucces = requests.every(
+        (resultado) => resultado.success === true
+      );
+
+      if (isSucces) {
+        MySwal.fire({
+          icon: "success",
+          title: "En hora buena...",
+          text: "Eventos Registrado",
+        }).then(async () => {
+          navigate("/detalle");
+        });
+      } else {
+        console.log("Al menos un evento no se registró correctamente.");
+      }
     } catch (error) {
       console.error("Error al enviar los datos:", error);
     }
@@ -120,9 +137,9 @@ export default function VistasPage() {
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                          clip-rule="evenodd"
+                          clipRule="evenodd"
                         ></path>
                       </svg>
                     </div>
@@ -146,9 +163,9 @@ export default function VistasPage() {
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                       ></path>
                     </svg>
@@ -176,15 +193,28 @@ export default function VistasPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  {vistasNoAsignadas.map((vista) => (
-                    <VistaRow
-                      key={vista.vista_acceso_id}
-                      vistaNombre={vista}
-                      onChange={handleRowChange}
-                    />
-                  ))}
-                </tbody>
+                {vistasNoAsignadas.length > 0 ? (
+                  <tbody>
+                    {vistasNoAsignadas.map((vista) => (
+                      <VistaRow
+                        key={vista.vista_acceso_id}
+                        vistaNombre={vista}
+                        onChange={handleRowChange}
+                      />
+                    ))}
+                  </tbody>
+                ) : (
+                  <tbody>
+                    <tr>
+                      <td
+                        colSpan={100}
+                        className="text-center p-10 font-normal text-gray-500"
+                      >
+                        No hay vistas disponibles en este momento.
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
               </table>
             </div>
           </div>
@@ -193,7 +223,7 @@ export default function VistasPage() {
           className="rounded-md bg-gray-700 py-1.5 px-5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-600 text-center mx-auto"
           onClick={handleConfirm}
         >
-          Confirmar
+          {vistasNoAsignadas.length > 0 ? "Confirmar" : "Aceptar"}
         </Button>
       </div>
     </section>

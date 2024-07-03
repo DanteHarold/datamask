@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../../stores/useAppStore";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 export default function LoginPage() {
   const userLogin = useAppStore((state) => state.fetchLogin);
-  const userLogueado = useAppStore((state) => state.usuarioLogueado);
+  const postLog = useAppStore((state) => state.fetchLog);
+  const logAcceso = useAppStore((state) => state.log);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,29 +19,39 @@ export default function LoginPage() {
         usuario_tx: username,
         clave_usuario_de: password,
       });
-      localStorage.setItem("datamaskuser", username);
-      console.log(userLogueado);
+
       if (!result.success) {
         MySwal.fire({
           icon: "error",
           title: "Oops...",
           text: result.message,
-        })
-          .then(() => {
-            console.log("OK");
-          })
-          .finally(() => {});
+        });
       } else {
         MySwal.fire({
           icon: "success",
           title: "En hora buena...",
           text: result.message,
-        }).then(() => {
-          navigate("/vistas");
-        });
+        })
+          .then(async () => {
+            //*Guarda en el localStotage
+            localStorage.setItem("datamaskuser", username);
+            //*Crea el Log de Acceso
+            const data = {
+              usuario_tx: username,
+              inicio_log_acceso_fh: new Date(),
+              fin_log_acceso_fh: new Date(),
+            };
+            //*Guarda el Log De Acceso de la Sesión en el localStotage
+            const res = await postLog(data);
+            console.log("logAcceso", res);
+            console.log("logAcceso", logAcceso);
+            localStorage.setItem("datamasklog", JSON.stringify(res.idLog));
+          })
+          .finally(() => {
+            navigate("/vistas");
+          });
       }
     } catch (error) {
-      setMessage("Error al iniciar sesión");
       console.error("Error al iniciar sesión:", error);
     }
   };

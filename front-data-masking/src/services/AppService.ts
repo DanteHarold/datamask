@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   EventoAPIResponsSchema,
   EventosAPIResponseSchema,
+  EventosAPIResponseSchemaGet,
   LogAPIResponsSchema,
   ParamAPIResponsSchema,
   UsuarioAPIResponsSchemaLogin,
@@ -29,9 +30,7 @@ export async function postRegister(usuario: Usuario) {
 export async function postLogin(usuario: Usuario) {
   const url = "http://localhost:8000/api/v1/usuarios/login/";
   const { data } = await axios.post(url, usuario);
-  console.log(data);
   const result = UsuarioAPIResponsSchemaLogin.safeParse(data);
-  console.log(result);
   if (result.success) {
     return result.data;
   }
@@ -69,7 +68,7 @@ export async function getEventosByUser(user: UsuarioEvento) {
   const url = `http://localhost:8000/api/v1/eventos/eventos/${user}`;
   const { data } = await axios(url);
   console.log("data", data);
-  const result = EventosAPIResponseSchema.safeParse(data);
+  const result = EventosAPIResponseSchemaGet.safeParse(data);
   console.log("result", result);
   if (result.success) {
     return result.data;
@@ -87,7 +86,6 @@ export async function getParams(user: Param["usuario_tx"]) {
 
 export async function postLog(log: LogPost) {
   const url = `http://localhost:8000/api/v1/log_accesos/`;
-  console.log(log);
   const { data } = await axios.post(url, log);
   console.log(data);
   const result = LogAPIResponsSchema.safeParse(data);
@@ -114,6 +112,7 @@ export async function deleteEventos(evento: EventoId) {
   const { data } = await axios.delete(url);
   console.log(data);
   const result = EventoAPIResponsSchema.safeParse(data);
+  console.log("Result deleteEventos : ", result);
   console.log(result);
   if (result.success) {
     return result.data;

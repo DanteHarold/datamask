@@ -4,25 +4,24 @@ import { useAppStore } from "../../stores/useAppStore";
 import DetalleRow from "../../components/Dashboard/DetalleRow";
 import { deleteEventos } from "../../services/AppService";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 interface SelectedRow {
   id: number;
   isSelected: Boolean;
 }
 type SelectedRowsState = Record<number, SelectedRow>;
 export default function DetallePage() {
-  // const fetchEventos = useAppStore((state) => state.fetchEventos);
   const fetchEventosByUser = useAppStore((state) => state.fetchEventosByUser);
+  const deleteEvento = useAppStore((state) => state.deleteEvento);
+  const updateEventosByIds = useAppStore((state) => state.removeEventosByIds);
   const eventos = useAppStore((state) => state.eventos);
   const userActive = localStorage.getItem("datamaskuser");
-  const navigate = useNavigate();
-  // useEffect(() => {
-  //   fetchEventos();
-  // }, []);
   useEffect(() => {
     fetchEventosByUser(userActive!);
   }, []);
-  console.log(eventos);
   const [selectedRows, setSelectedRows] = useState<SelectedRowsState>({});
+  const MySwal = withReactContent(Swal);
   const handleRowChange = (id: number, isSelected: Boolean) => {
     setSelectedRows((prev) => {
       const newState = { ...prev }; // Hacer una copia del estado actual
@@ -38,18 +37,41 @@ export default function DetallePage() {
       return newState; // Devolver el nuevo estado que siempre será un SelectedRowsState
     });
   };
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     console.log("Selected Rows:", selectedRows);
-    const selectedItemsArray = Object.keys(selectedRows)
+    let selectedItemsArray = Object.keys(selectedRows)
       .map((key) => parseInt(key, 10))
       .filter((key) => selectedRows[key].isSelected)
       .map((key) => selectedRows[key]);
     console.log(selectedItemsArray);
     try {
-      const requests = selectedItemsArray.map((item) => deleteEventos(item.id));
-      console.log("Requests :", { requests });
-      navigate("/detalle");
-      location.reload();
+      const requests = await Promise.all(
+        selectedItemsArray.map((item) => deleteEvento(item.id))
+      );
+
+      // Obtener los IDs de los eventos eliminados
+      const idsRemoved = selectedItemsArray.map((item) => item.id);
+
+      // Actualizar el estado con la nueva lista de eventos
+      updateEventosByIds(idsRemoved);
+      // location.reload();
+      console.log(requests);
+      const isSucces = requests.every(
+        (resultado) => resultado.success === true
+      );
+
+      if (isSucces) {
+        MySwal.fire({
+          icon: "success",
+          title: "En hora buena...",
+          text: "Eventos Eliminados",
+        }).then(async () => {
+          console.log("Eventos Eliminados Correctamente");
+          setSelectedRows([]);
+        });
+      } else {
+        console.log("Al menos un evento no se eliminó correctamente.");
+      }
     } catch (error) {
       console.error("Error al enviar los datos:", error);
     }
@@ -77,9 +99,9 @@ export default function DetallePage() {
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                          clip-rule="evenodd"
+                          clipRule="evenodd"
                         ></path>
                       </svg>
                     </div>
@@ -103,9 +125,9 @@ export default function DetallePage() {
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                       ></path>
                     </svg>
@@ -136,16 +158,28 @@ export default function DetallePage() {
                     </th>
                   </tr>
                 </thead>
-
-                <tbody>
-                  {eventos.map((evento) => (
-                    <DetalleRow
-                      key={evento.evento_id}
-                      evento={evento}
-                      onChange={handleRowChange}
-                    />
-                  ))}
-                </tbody>
+                {eventos.length > 0 ? (
+                  <tbody>
+                    {eventos.map((evento) => (
+                      <DetalleRow
+                        key={evento.evento_id}
+                        evento={evento}
+                        onChange={handleRowChange}
+                      />
+                    ))}
+                  </tbody>
+                ) : (
+                  <tbody>
+                    <tr>
+                      <td
+                        colSpan={100}
+                        className="text-center p-10 font-normal text-gray-500"
+                      >
+                        No hay eventos disponibles en este momento.
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
               </table>
             </div>
           </div>
@@ -154,7 +188,7 @@ export default function DetallePage() {
           className="rounded-md bg-gray-700 py-1.5 px-5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none hover:bg-gray-600 text-center mx-auto"
           onClick={handleConfirm}
         >
-          Confirmar
+          {eventos.length > 0 ? "Confirmar" : "Aceptar"}
         </Button>
       </div>
     </section>

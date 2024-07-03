@@ -39,5 +39,5 @@ def delete_vista_acceso(vista_acceso_id: int, db: Session = Depends(get_db)):
 def read_vistas_no_asignadas(usuario_tx: str, db: Session = Depends(get_db)):
     vistas = crudvista.get_vistas_no_asignadas(db, usuario_tx)
     if not vistas:
-        raise HTTPException(status_code=404, detail="No vistas found for the user")
+        raise HTTPException(status_code=404, detail="Vistas no encontradas para el Usuario")
     return vistas

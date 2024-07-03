@@ -38,11 +38,12 @@ export default function VistaRow({ vistaNombre, onChange }: VistaProps) {
             className="p-3 w-full rounded-lg focus:outline-none"
             onChange={handleSelectChange}
           >
-            <option value="">--- Seleccione ---</option>
-            <option value={1}>1 Hora</option>
-            <option value={2}>2 Horas</option>
-            <option value={3}>3 Horas</option>
-            <option value={4}>4 Horas</option>
+            <option value="">--- Seleccione hrs ---</option>
+            <option value={12}>12 hrs</option>
+            <option value={24}>24 hrs</option>
+            <option value={36}>36 hrs</option>
+            <option value={48}>48 hrs</option>
+            <option value={72}>72 hrs</option>
           </select>
         </td>
       </tr>

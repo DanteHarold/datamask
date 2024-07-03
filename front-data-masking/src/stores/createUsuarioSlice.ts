@@ -35,7 +35,6 @@ export const createUsuarioSlice: StateCreator<UsuariosSliceType> = (set) => ({
   fetchLogin: async (usuario) => {
     try {
       const usuarioLogueado = await postLogin(usuario);
-      console.log(usuarioLogueado);
       set({ usuarioLogueado });
       return { success: true, message: "Inicio de sesión exitoso" };
     } catch (error) {

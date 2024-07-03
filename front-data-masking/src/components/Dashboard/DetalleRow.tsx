@@ -16,12 +16,12 @@ export default function DetalleRow({ evento, onChange }: EventosProps) {
     <>
       <tr>
         <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
-          {evento.vista_acceso_id}
+          {evento.nombre_vista_acceso_de}
         </th>
         <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
           <p>
             {" "}
-            {evento.tiempo_permiso_evento_fh} {} min.
+            {evento.tiempo_permiso_evento_fh} {} hrs.
           </p>
         </td>
         <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">

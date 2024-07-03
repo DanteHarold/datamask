@@ -10,8 +10,18 @@ def get_evento(db: Session, evento_id: int):
 def get_all_eventos(db: Session):
     return db.query(models.TDMASKEventos).all()
 
+# def get_eventos_by_usuario(db: Session, usuario_tx: str):
+#     return db.query(models.TDMASKEventos).filter(models.TDMASKEventos.usuario_tx == usuario_tx).all()
 def get_eventos_by_usuario(db: Session, usuario_tx: str):
-    return db.query(models.TDMASKEventos).filter(models.TDMASKEventos.usuario_tx == usuario_tx).all()
+    return db.query(
+        models.TDMASKEventos,
+        models.TDMASKVistasAccesos.nombre_vista_acceso_de.label("nombre_vista_acceso_de")
+    ).join(
+        models.TDMASKVistasAccesos,
+        models.TDMASKEventos.vista_acceso_id == models.TDMASKVistasAccesos.vista_acceso_id
+    ).filter(
+        models.TDMASKEventos.usuario_tx == usuario_tx
+    ).all()
 
 def create_evento(db: Session, evento: schemas.EventoCreate):
     db_evento = models.TDMASKEventos(**evento.dict())
