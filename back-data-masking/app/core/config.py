@@ -8,12 +8,13 @@ load_dotenv()
 print(os.getenv('DATABASE_URL'))
 
 class Settings:
-    DATABASE_URL = os.getenv("DATABASE_UR2","mysql+pymysql://root:99753@localhost/datamasking")
+    DATABASE_URL1 = os.getenv("DATABASE_URL1", "mysql+pymysql://root:99753@localhost/datamasking")
+    DATABASE_URL2 = os.getenv("DATABASE_URL2", "mysql+pymysql://root:99753@localhost/datamasking_view")
 
 settings = Settings()
-print(f"Loaded DATABASE_URL: {settings.DATABASE_URL}")
+print(f"Loaded DATABASE_URL: {settings.DATABASE_URL1}")
 
 # Crear el engine de SQLAlchemy
-engine = create_engine(settings.DATABASE_URL)
+# engine = create_engine(settings.DATABASE_URL1)
 
 # Ahora puedes usar `engine` para interactuar con la base de datos

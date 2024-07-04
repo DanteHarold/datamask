@@ -16,6 +16,7 @@ import {
   Param,
   Usuario,
   UsuarioEvento,
+  Vista,
 } from "../types";
 
 export async function postRegister(usuario: Usuario) {
@@ -44,6 +45,15 @@ export async function getVistas() {
     return result.data;
   }
 }
+export async function createVistas(view_name: Vista["nombre_vista_acceso_de"]) {
+  const url = `http://localhost:8000/api/v1/eventos/create_view/?view_name=${view_name}`;
+  const { data } = await axios.post(url, { view_name: view_name });
+  console.log(data);
+  const result = VistasAPIResponseSchema.safeParse(data);
+  if (result.success) {
+    return result.data;
+  }
+}
 
 export async function getVistasNoAsignadas(user: Param["usuario_tx"]) {
   const url = `http://localhost:8000/api/v1/vistas_accesos/vistas_no_asignadas/${user}`;
@@ -58,7 +68,7 @@ export async function getEventos() {
   const url = "http://localhost:8000/api/v1/eventos/";
   const { data } = await axios(url);
   console.log("data", data);
-  const result = EventosAPIResponseSchema.safeParse(data);
+  const result = EventosAPIResponseSchemaGet.safeParse(data);
   console.log("result", result);
   if (result.success) {
     return result.data;

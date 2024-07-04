@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.schemas import schemas
 from app.db.services import  eventos as crudeventos
-from app.api.deps import get_db
+from app.api.deps import get_db1 as get_db,get_db2_dep
+from app.utils.utils import sanitize_identifier
 
 router = APIRouter(tags=["Eventos"])
 
@@ -57,3 +58,11 @@ def delete_evento(evento_id: int, db: Session = Depends(get_db)):
     if db_evento is None:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
     return db_evento
+
+@router.post("/create_view/")
+def create_view_endpoint(view_name: str, db1: Session = Depends(get_db), db2: Session = Depends(get_db2_dep)):
+    try:
+        response = crudeventos.create_view(db1, db2, view_name)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

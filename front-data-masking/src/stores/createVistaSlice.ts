@@ -1,6 +1,10 @@
 import { StateCreator } from "zustand";
-import { getVistas, getVistasNoAsignadas } from "../services/AppService";
-import { Param, Vistas } from "../types";
+import {
+  createVistas,
+  getVistas,
+  getVistasNoAsignadas,
+} from "../services/AppService";
+import { Param, Vista, Vistas } from "../types";
 
 export type VistasSliceType = {
   vistas: Vistas;
@@ -8,6 +12,7 @@ export type VistasSliceType = {
   fetchVistas: () => Promise<void>;
   fetchVistasNoAsignadas: (id: Param["usuario_tx"]) => Promise<void>;
   removeVistasByIds: (idsToRemove: number[]) => void;
+  postVista: (name: Vista["nombre_vista_acceso_de"]) => Promise<void>;
 };
 export const createVistaSlice: StateCreator<VistasSliceType> = (set) => ({
   vistas: [],
@@ -26,4 +31,9 @@ export const createVistaSlice: StateCreator<VistasSliceType> = (set) => ({
         (vista) => !idsToRemove.includes(vista.vista_acceso_id)
       ),
     })),
+  postVista: async (name) => {
+    const vistas = await createVistas(name);
+    console.log(vistas);
+    set({ vistas });
+  },
 });

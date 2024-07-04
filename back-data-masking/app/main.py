@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.db.session import engine, Base
+from app.db.session import engine1,engine2, Base
 from app.api.routers import usuarios, params, log_accesos, vistas_accesos, eventos
 
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine1)
 
 app = FastAPI()
 

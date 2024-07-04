@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.schemas import schemas
 from app.db.services import params as crudparam
-from app.api.deps import get_db
+from app.api.deps import get_db1 as get_db,get_db2_dep
 
 router = APIRouter(tags=["Params"])
 

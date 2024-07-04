@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.db.schemas import schemas
 from app.db import models
 
@@ -45,3 +46,25 @@ def delete_evento(db: Session, evento_id: int):
         db.delete(db_evento)
         db.commit()
     return db_evento
+
+def create_view(db1: Session, db2: Session, view_name: str):
+    try:
+        view_nameDP = f"""datamasking_view.{view_name}_DP"""
+        create_view_query = text(f"""
+        CREATE OR REPLACE VIEW {view_nameDP} AS
+        SELECT
+            A.cliente_id,
+            B.dp_numero_documento_cd,
+            B.dp_tipo_documento_de,
+            B.dp_nombre_cliente_de,
+            B.dp_apellido_cliente_de
+        FROM datamasking_view.{view_name} A
+        LEFT JOIN datamasking.T_DP_EQ_CLIENTES_D B
+        ON A.dp_numero_documento_cd = B.dp_numero_documento_cd;
+        """)
+        db1.execute(create_view_query)
+        db1.commit()
+        return {"message": "View created successfully"}
+    except Exception as e:
+        db1.rollback()
+        raise e

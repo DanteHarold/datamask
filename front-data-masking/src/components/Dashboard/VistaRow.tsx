@@ -4,7 +4,12 @@ import { useState } from "react";
 
 type VistaProps = {
   vistaNombre: Vista;
-  onChange: (id: number, isSelected: boolean, duration: number) => void;
+  onChange: (
+    id: number,
+    name: string,
+    isSelected: boolean,
+    duration: number
+  ) => void;
 };
 
 export default function VistaRow({ vistaNombre, onChange }: VistaProps) {
@@ -13,13 +18,23 @@ export default function VistaRow({ vistaNombre, onChange }: VistaProps) {
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsSelected(e.target.checked);
-    onChange(vistaNombre.vista_acceso_id, e.target.checked, duration);
+    onChange(
+      vistaNombre.vista_acceso_id,
+      vistaNombre.nombre_vista_acceso_de,
+      isSelected,
+      duration
+    );
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDuration(Number(e.target.value));
     if (isSelected) {
-      onChange(vistaNombre.vista_acceso_id, isSelected, Number(e.target.value));
+      onChange(
+        vistaNombre.vista_acceso_id,
+        vistaNombre.nombre_vista_acceso_de,
+        isSelected,
+        duration
+      );
     }
   };
   return (

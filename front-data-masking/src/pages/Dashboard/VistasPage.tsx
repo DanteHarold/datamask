@@ -8,6 +8,7 @@ import withReactContent from "sweetalert2-react-content";
 import { useNavigate } from "react-router-dom";
 interface SelectedRow {
   duration: number;
+  name: string;
   id: number;
   isSelected: Boolean;
 }
@@ -18,6 +19,7 @@ type SelectedRowsState = Record<number, SelectedRow>;
 export default function VistasPage() {
   const updateEventosByIds = useAppStore((state) => state.removeVistasByIds);
   const fetchParam = useAppStore((state) => state.fetchParam);
+  const createVista = useAppStore((state) => state.postVista);
   const fetchVistasNoAsignadas = useAppStore(
     (state) => state.fetchVistasNoAsignadas
   );
@@ -33,8 +35,20 @@ export default function VistasPage() {
   );
   const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
-  console.log("userActive", userActive);
-  console.log("userLog", userLog);
+
+  const [query, setQuery] = useState("");
+  const [filteredItems, setFilteredItems] = useState(vistasNoAsignadas);
+  useEffect(() => {
+    setFilteredItems(
+      vistasNoAsignadas.filter((item) =>
+        item.nombre_vista_acceso_de.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+  }, [query, vistasNoAsignadas]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
+
   // useEffect(() => {
   //   fetchVistas();
   // }, []);
@@ -47,6 +61,7 @@ export default function VistasPage() {
   const [selectedRows, setSelectedRows] = useState<SelectedRowsState>({});
   const handleRowChange = (
     id: number,
+    name: string,
     isSelected: Boolean,
     duration: number
   ) => {
@@ -55,7 +70,7 @@ export default function VistasPage() {
 
       if (isSelected) {
         // Si está seleccionado, actualizar o agregar el elemento con nuevos valores
-        newState[id] = { id, isSelected, duration };
+        newState[id] = { id, name, isSelected, duration };
       } else {
         // Si no está seleccionado, eliminar el elemento del estado
         delete newState[id];
@@ -89,6 +104,10 @@ export default function VistasPage() {
           })
         )
       );
+      console.log(selectedItemsArray[0]?.name);
+      const res = await createVista(selectedItemsArray[0].name.toString());
+      console.log("res CreateVista : ", res);
+
       console.log("Requests :", requests);
       // Obtener los IDs de los eventos eliminados
       const idsRemoved = selectedItemsArray.map((item) => item.id);
@@ -122,7 +141,7 @@ export default function VistasPage() {
             <div className="flex flex-wrap items-center">
               <div className="relative w-full px-4 max-w-full flex-grow flex-1">
                 <h3 className="font-semibold text-base text-blueGray-700">
-                  Vistas
+                  Listado de vistas actualmente
                 </h3>
               </div>
               <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
@@ -149,27 +168,10 @@ export default function VistasPage() {
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="Search"
                       required
+                      value={query}
+                      onChange={handleChange}
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      ></path>
-                    </svg>
-                  </button>
                 </form>
               </div>
             </div>
@@ -195,10 +197,10 @@ export default function VistasPage() {
                 </thead>
                 {vistasNoAsignadas.length > 0 ? (
                   <tbody>
-                    {vistasNoAsignadas.map((vista) => (
+                    {filteredItems.map((item) => (
                       <VistaRow
-                        key={vista.vista_acceso_id}
-                        vistaNombre={vista}
+                        key={item.vista_acceso_id}
+                        vistaNombre={item}
                         onChange={handleRowChange}
                       />
                     ))}

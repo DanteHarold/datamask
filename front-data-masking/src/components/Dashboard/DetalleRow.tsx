@@ -1,8 +1,8 @@
 import { Input } from "@headlessui/react";
-import { Evento } from "../../types";
+import { EventoGet } from "../../types";
 import { useState } from "react";
 type EventosProps = {
-  evento: Evento;
+  evento: EventoGet;
   onChange: (id: number, isSelected: boolean) => void;
 };
 export default function DetalleRow({ evento, onChange }: EventosProps) {
@@ -17,6 +17,7 @@ export default function DetalleRow({ evento, onChange }: EventosProps) {
       <tr>
         <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-blueGray-700 text-center">
           {evento.nombre_vista_acceso_de}
+          {"_DP"}
         </th>
         <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
           <p>
