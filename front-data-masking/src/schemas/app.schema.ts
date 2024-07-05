@@ -25,6 +25,8 @@ export const ParamAPIResponsSchema = z.object({
   fecha_alta_usuario_fh: z.string(),
   rol_usuario_de: z.string(),
 });
+export const ParamAPIResponsSchemaAuth = z.boolean();
+
 export const ParamsAPIResponseSchema = z.object({
   params: z.array(ParamAPIResponsSchema),
 });

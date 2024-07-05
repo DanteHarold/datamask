@@ -5,6 +5,7 @@ import {
   EventosAPIResponseSchemaGet,
   LogAPIResponsSchema,
   ParamAPIResponsSchema,
+  ParamAPIResponsSchemaAuth,
   UsuarioAPIResponsSchemaLogin,
   UsuarioAPIResponsSchemaRegister,
   VistasAPIResponseSchema,
@@ -32,6 +33,16 @@ export async function postLogin(usuario: Usuario) {
   const url = "http://localhost:8000/api/v1/usuarios/login/";
   const { data } = await axios.post(url, usuario);
   const result = UsuarioAPIResponsSchemaLogin.safeParse(data);
+  if (result.success) {
+    return result.data;
+  }
+}
+
+export async function postUsuarioActive(usuario: Usuario["usuario_tx"]) {
+  const url = `http://localhost:8000/api/v1/usuarios/${usuario}`;
+  const { data } = await axios.get(url);
+  console.log("data", data);
+  const result = UsuarioAPIResponsSchemaRegister.safeParse(data);
   if (result.success) {
     return result.data;
   }
@@ -89,6 +100,16 @@ export async function getParams(user: Param["usuario_tx"]) {
   const url = `http://localhost:8000/api/v1/params/${user}`;
   const { data } = await axios(url);
   const result = ParamAPIResponsSchema.safeParse(data);
+  if (result.success) {
+    return result.data;
+  }
+}
+export async function getParamsAuth(user: Param["usuario_tx"]) {
+  const url = `http://localhost:8000/api/v1/params/verificar_autorizacion/${user}`;
+  const { data } = await axios.post(url, { user });
+  console.log("getParamsAuth:", data);
+  const result = ParamAPIResponsSchemaAuth.safeParse(data);
+  console.log(result);
   if (result.success) {
     return result.data;
   }

@@ -1,5 +1,9 @@
 import { StateCreator } from "zustand";
-import { postLogin, postRegister } from "../services/AppService";
+import {
+  postLogin,
+  postRegister,
+  postUsuarioActive,
+} from "../services/AppService";
 import { Usuario, UsuarioLogin, UsuarioRegister } from "../types";
 import axios from "axios";
 
@@ -12,6 +16,9 @@ export type UsuariosSliceType = {
   ) => Promise<{ success: boolean; message: string }>;
   fetchLogin: (
     usuario: Usuario
+  ) => Promise<{ success: boolean; message: string }>;
+  fetchUsuarioIsActive: (
+    usuario: Usuario["usuario_tx"]
   ) => Promise<{ success: boolean; message: string }>;
 };
 export const createUsuarioSlice: StateCreator<UsuariosSliceType> = (set) => ({
@@ -37,6 +44,24 @@ export const createUsuarioSlice: StateCreator<UsuariosSliceType> = (set) => ({
       const usuarioLogueado = await postLogin(usuario);
       set({ usuarioLogueado });
       return { success: true, message: "Inicio de sesión exitoso" };
+    } catch (error) {
+      let errorMessage = "Error al iniciar sesión";
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data.detail || errorMessage;
+      }
+      set({ errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  },
+  fetchUsuarioIsActive: async (usuario) => {
+    try {
+      const usuarioRegister = await postUsuarioActive(usuario);
+      if (usuarioRegister) {
+        set({ usuarioRegister });
+        set({ usuarioRegister });
+        return { success: true, message: "Usuario registrado con clave" };
+      }
+      return { success: false, message: "Usuario registrado sin clave" };
     } catch (error) {
       let errorMessage = "Error al iniciar sesión";
       if (axios.isAxiosError(error) && error.response) {

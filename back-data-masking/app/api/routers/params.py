@@ -34,3 +34,9 @@ def delete_param(usuario_tx: str, db: Session = Depends(get_db)):
     if db_param is None:
         raise HTTPException(status_code=404, detail="Parámetro no encontrado")
     return db_param
+
+@router.post("/verificar_autorizacion/{usuario_tx}", response_model=bool)
+def verificar_autorizacion(usuario_tx: str, db: Session = Depends(get_db)):
+    print(usuario_tx)
+    autorizacion = crudparam.verificar_autorizacion_usuario(db, usuario_tx)
+    return autorizacion

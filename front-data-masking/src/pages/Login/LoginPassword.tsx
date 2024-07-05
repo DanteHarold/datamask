@@ -7,20 +7,34 @@ export default function LoginPassword() {
   const usuarioRegister = useAppStore((state) => state.fetchRegister);
   const usuarioRegistrado = useAppStore((state) => state.usuarioRegister);
   const errorMessage = useAppStore((state) => state.errorMessage);
-  const [username, setUsername] = useState("");
+  const paramsUsuario = useAppStore((state) => state.paramsUsuario);
+  const [username, setUsername] = useState(paramsUsuario);
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("ERROR");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // Expresión regular para validar la complejidad de la contraseña
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     const MySwal = withReactContent(Swal);
     if (password !== confirmPassword) {
-      setMessage("Las Contraseñas no Coinciden!");
       MySwal.fire({
         icon: "error",
         title: "Oops...",
-        text: message,
+        text: "Las Contraseñas no Coinciden!",
+      }).then(() => {
+        console.log("OK");
+      });
+      return;
+    }
+    if (!passwordRegex.test(password)) {
+      MySwal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, un número y un carácter especial.",
       }).then(() => {
         console.log("OK");
       });
@@ -81,6 +95,7 @@ export default function LoginPassword() {
               value={username}
               className="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300"
               onChange={(e) => setUsername(e.target.value)}
+              disabled
             />
           </div>
           <div>

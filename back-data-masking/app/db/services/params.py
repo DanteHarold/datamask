@@ -32,3 +32,9 @@ def delete_param(db: Session, usuario_tx: str):
         db.delete(db_param)
         db.commit()
     return db_param
+
+def verificar_autorizacion_usuario(db: Session, usuario_tx: str):
+    db_usuario = db.query(models.TDMASKParams).filter(models.TDMASKParams.usuario_tx == usuario_tx).first()
+    if db_usuario and db_usuario.autorizacion_usuario_fl:
+        return True
+    return False

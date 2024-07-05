@@ -2,21 +2,21 @@ from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, TIMESTAM
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 
-class TDMASKUsuarios(Base):
-    __tablename__ = "T_DMASK_USUARIOS"
-    usuario_tx = Column(String(80), primary_key=True, index=True)
-    clave_usuario_de = Column(String(80))
-    params = relationship("TDMASKParams", back_populates="usuario")
 
 class TDMASKParams(Base):
     __tablename__ = "T_DMASK_PARAMS"
-    usuario_tx = Column(String(80), ForeignKey("T_DMASK_USUARIOS.usuario_tx"), primary_key=True, index=True)
+    usuario_tx = Column(String(80), primary_key=True, index=True)
     nombre_usuario_de = Column(String(80))
     apellidos_usuario_de = Column(String(80))
     autorizacion_usuario_fl = Column(Boolean)
     fecha_alta_usuario_fh = Column(TIMESTAMP)
     rol_usuario_de = Column(String(80))
     usuario = relationship("TDMASKUsuarios", back_populates="params")
+class TDMASKUsuarios(Base):
+    __tablename__ = "T_DMASK_USUARIOS"
+    usuario_tx = Column(String(80),ForeignKey("T_DMASK_PARAMS.usuario_tx"), primary_key=True, index=True)
+    clave_usuario_de = Column(String(80))
+    params = relationship("TDMASKParams", back_populates="usuario")
 
 class TDMASKLogAccesos(Base):
     __tablename__ = "T_DMASK_LOG_ACCESOS"

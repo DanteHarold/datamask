@@ -4,7 +4,7 @@ from ..base import Base
 
 class TDMASKParams(Base):
     __tablename__ = "T_DMASK_PARAMS"
-    usuario_tx = Column(String(80), ForeignKey("T_DMASK_USUARIOS.usuario_tx"), primary_key=True, index=True)
+    usuario_tx = Column(String(80), primary_key=True, index=True)
     nombre_usuario_de = Column(String(80))
     apellidos_usuario_de = Column(String(80))
     autorizacion_usuario_fl = Column(BYTE)

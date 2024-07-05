@@ -59,7 +59,7 @@ export default function Navbar() {
                       />
                     </svg>
                   </span>
-                  <NavLink to="/login">Logout</NavLink>
+                  <NavLink to="/login-verificar">Logout</NavLink>
                 </li>
               </ul>
             </div>

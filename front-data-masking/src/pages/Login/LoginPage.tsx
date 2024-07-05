@@ -6,8 +6,9 @@ import withReactContent from "sweetalert2-react-content";
 export default function LoginPage() {
   const userLogin = useAppStore((state) => state.fetchLogin);
   const postLog = useAppStore((state) => state.fetchLog);
+  const paramsUsuario = useAppStore((state) => state.paramsUsuario);
   const logAcceso = useAppStore((state) => state.log);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(paramsUsuario);
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -84,6 +85,7 @@ export default function LoginPage() {
               value={username}
               className="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300"
               onChange={(e) => setUsername(e.target.value)}
+              disabled
             />
           </div>
 
