@@ -8,6 +8,7 @@ class TDMASKParams(Base):
     usuario_tx = Column(String(80), primary_key=True, index=True)
     nombre_usuario_de = Column(String(80))
     apellidos_usuario_de = Column(String(80))
+    email_usuario_de = Column(String(80))
     autorizacion_usuario_fl = Column(Boolean)
     fecha_alta_usuario_fh = Column(TIMESTAMP)
     rol_usuario_de = Column(String(80))

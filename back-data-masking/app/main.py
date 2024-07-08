@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine1,engine2, Base
-from app.api.routers import usuarios, params, log_accesos, vistas_accesos, eventos
+from app.api.routers import usuarios, params, log_accesos, vistas_accesos, eventos,auth
 
 Base.metadata.create_all(bind=engine1)
 
@@ -28,3 +28,4 @@ app.include_router(params.router, prefix="/api/v1/params")
 app.include_router(log_accesos.router, prefix="/api/v1/log_accesos")
 app.include_router(vistas_accesos.router, prefix="/api/v1/vistas_accesos")
 app.include_router(eventos.router, prefix="/api/v1/eventos")
+app.include_router(auth.router, prefix="/api/v1/auth")

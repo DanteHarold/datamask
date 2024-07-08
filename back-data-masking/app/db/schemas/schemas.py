@@ -17,6 +17,7 @@ class ParamBase(BaseModel):
     usuario_tx: str
     nombre_usuario_de: Optional[str]
     apellidos_usuario_de: Optional[str]
+    email_usuario_de: Optional[str]
     autorizacion_usuario_fl: Optional[int]
     fecha_alta_usuario_fh: Optional[datetime]
     rol_usuario_de: Optional[str]
@@ -26,23 +27,7 @@ class ParamCreate(ParamBase):
 
 class Param(ParamBase):
     class Config:
-        orm_mode = True
-
-#T_DMASK_EVENTOS        
-class ParamBase(BaseModel):
-    usuario_tx: str
-    nombre_usuario_de: Optional[str]
-    apellidos_usuario_de: Optional[str]
-    autorizacion_usuario_fl: Optional[int]
-    fecha_alta_usuario_fh: Optional[datetime]
-    rol_usuario_de: Optional[str]
-
-class ParamCreate(ParamBase):
-    pass
-
-class Param(ParamBase):
-    class Config:
-        orm_mode = True
+        orm_mode = True 
 
 #T_DMASK_LOG_ACCESOS  
 class LogAccesoBase(BaseModel):

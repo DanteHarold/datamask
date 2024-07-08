@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.db.schemas import schemas
 from app.db import models
-
+import re
 # Eventos
 
 def get_evento(db: Session, evento_id: int):
@@ -48,18 +48,16 @@ def delete_evento(db: Session, evento_id: int):
     return db_evento
 
 def create_view(db1: Session, db2: Session, view_name: str):
+    extracted_part = re.search(r"DP_(.*?)_", view_name).group(1)
     try:
         view_nameDP = f"""datamasking_view.{view_name}_DP"""
         create_view_query = text(f"""
         CREATE OR REPLACE VIEW {view_nameDP} AS
         SELECT
             A.cliente_id,
-            B.dp_numero_documento_cd,
-            B.dp_tipo_documento_de,
-            B.dp_nombre_cliente_de,
-            B.dp_apellido_cliente_de
+            B.*
         FROM datamasking_view.{view_name} A
-        LEFT JOIN datamasking.T_DP_EQ_CLIENTES_D B
+        LEFT JOIN datamasking.T_DP_EQ_{extracted_part}_D B
         ON A.dp_numero_documento_cd = B.dp_numero_documento_cd;
         """)
         db1.execute(create_view_query)
