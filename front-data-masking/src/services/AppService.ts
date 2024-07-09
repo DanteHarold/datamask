@@ -13,6 +13,7 @@ import {
 import {
   EventoId,
   EventoPost,
+  Log,
   LogPost,
   Param,
   Usuario,
@@ -125,6 +126,19 @@ export async function postLog(log: LogPost) {
     return result.data;
   }
 }
+export async function putLog(
+  fin_log_acceso_fh: LogPost["fin_log_acceso_fh"],
+  logId: Log["log_acceso_id"]
+) {
+  const url = `http://localhost:8000/api/v1/log_accesos/${logId}`;
+  const { data } = await axios.put(url, { fin_log_acceso_fh });
+  console.log(data);
+  const result = LogAPIResponsSchema.safeParse(data);
+  console.log(result);
+  if (result.success) {
+    return result.data;
+  }
+}
 
 export async function postEventos(evento: EventoPost) {
   const url = `http://localhost:8000/api/v1/eventos/`;
@@ -141,6 +155,29 @@ export async function postEventos(evento: EventoPost) {
 export async function deleteEventos(evento: EventoId) {
   const url = `http://localhost:8000/api/v1/eventos/${evento}`;
   const { data } = await axios.delete(url);
+  console.log(data);
+  const result = EventoAPIResponsSchema.safeParse(data);
+  console.log("Result deleteEventos : ", result);
+  console.log(result);
+  if (result.success) {
+    return result.data;
+  }
+}
+
+export async function sendResetPassword(email: string) {
+  const url = `http://localhost:8000/api/v1/auth/password-reset-request`;
+  const { data } = await axios.post(url, { email });
+  console.log(data);
+  const result = EventoAPIResponsSchema.safeParse(data);
+  console.log("Result deleteEventos : ", result);
+  console.log(result);
+  if (result.success) {
+    return result.data;
+  }
+}
+export async function resetPassword(token: string, new_password: string) {
+  const url = `http://localhost:8000/api/v1/auth/reset-password/?token=${token}&new_password=${new_password}`;
+  const { data } = await axios.post(url, { token, new_password });
   console.log(data);
   const result = EventoAPIResponsSchema.safeParse(data);
   console.log("Result deleteEventos : ", result);

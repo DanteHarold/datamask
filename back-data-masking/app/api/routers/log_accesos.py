@@ -22,7 +22,7 @@ def read_all_log_acceso(db: Session = Depends(get_db)):
     return crudlogacceso.get_all_log_accesos(db)
 
 @router.put("/{log_acceso_id}", response_model=schemas.LogAcceso)
-def update_log_acceso(log_acceso_id: int, log_acceso: schemas.LogAccesoCreate, db: Session = Depends(get_db)):
+def update_log_acceso(log_acceso_id: int, log_acceso: schemas.LogPutBase, db: Session = Depends(get_db)):
     db_log_acceso = crudlogacceso.update_log_acceso(db, log_acceso_id, log_acceso)
     if db_log_acceso is None:
         raise HTTPException(status_code=404, detail="Log de acceso no encontrado")

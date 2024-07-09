@@ -7,6 +7,7 @@ export default function LoginPage() {
   const userLogin = useAppStore((state) => state.fetchLogin);
   const postLog = useAppStore((state) => state.fetchLog);
   const paramsUsuario = useAppStore((state) => state.paramsUsuario);
+  const sendResetPs = useAppStore((state) => state.sendResetPassword);
   const logAcceso = useAppStore((state) => state.log);
   const [username, setUsername] = useState(paramsUsuario);
   const [password, setPassword] = useState("");
@@ -37,10 +38,11 @@ export default function LoginPage() {
             //*Guarda en el localStotage
             localStorage.setItem("datamaskuser", username);
             //*Crea el Log de Acceso
+            console.log("date", new Date());
             const data = {
               usuario_tx: username,
               inicio_log_acceso_fh: new Date(),
-              fin_log_acceso_fh: new Date(),
+              fin_log_acceso_fh: new Date(2000, 0, 1),
             };
             //*Guarda el Log De Acceso de la Sesión en el localStotage
             const res = await postLog(data);
@@ -57,6 +59,40 @@ export default function LoginPage() {
     }
   };
 
+  const handlePassword = () => {
+    Swal.fire({
+      title: "Ingresa tu Correo Electronico",
+      input: "text",
+      inputAttributes: {
+        autocapitalize: "off",
+      },
+      showCancelButton: true,
+      confirmButtonText: "Ok",
+      showLoaderOnConfirm: true,
+      preConfirm: async (login) => {
+        try {
+          console.log("login", login);
+          const response = await sendResetPs(login);
+          if (!response.success) {
+            return Swal.showValidationMessage(`
+          hola
+        `);
+          }
+        } catch (error) {
+          Swal.showValidationMessage(`
+        Request failed: ${error}
+      `);
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: `Revise su correo por favor para reestablecer la contraseña`,
+        });
+      }
+    });
+  };
   return (
     <>
       <div className="max-w-md w-full p-6">
@@ -114,7 +150,11 @@ export default function LoginPage() {
         <div className="mt-4 text-sm text-gray-600 text-center">
           <p>
             Te has olvidado tu Contraseña?{" "}
-            <a href="#" className="text-black hover:underline">
+            <a
+              href="#"
+              className="text-black hover:underline"
+              onClick={handlePassword}
+            >
               Click Aqui
             </a>
           </p>

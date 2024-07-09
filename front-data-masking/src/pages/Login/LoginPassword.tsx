@@ -1,81 +1,150 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../../stores/useAppStore";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { useLocation } from "react-router-dom";
 export default function LoginPassword() {
   const usuarioRegister = useAppStore((state) => state.fetchRegister);
   const usuarioRegistrado = useAppStore((state) => state.usuarioRegister);
   const errorMessage = useAppStore((state) => state.errorMessage);
   const paramsUsuario = useAppStore((state) => state.paramsUsuario);
+  const resetPs = useAppStore((state) => state.resetPassword);
   const [username, setUsername] = useState(paramsUsuario);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const token = searchParams.get("token");
+  const [isReset, setIsReset] = useState(false);
+
+  useEffect(() => {
+    // Establece isReset a true si el token tiene algún valor, de lo contrario a false
+    setIsReset(token !== null);
+  }, [token]); // El efecto se re-ejecuta sólo si el valor de `token` cambia
+
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Expresión regular para validar la complejidad de la contraseña
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    const MySwal = withReactContent(Swal);
-    if (password !== confirmPassword) {
-      MySwal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Las Contraseñas no Coinciden!",
-      }).then(() => {
-        console.log("OK");
-      });
-      return;
-    }
-    if (!passwordRegex.test(password)) {
-      MySwal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, un número y un carácter especial.",
-      }).then(() => {
-        console.log("OK");
-      });
-      return;
-    }
-    try {
-      const result = await usuarioRegister({
-        usuario_tx: username,
-        clave_usuario_de: password,
-      });
-      if (!result.success) {
+    if (!isReset) {
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      const MySwal = withReactContent(Swal);
+      if (password !== confirmPassword) {
         MySwal.fire({
           icon: "error",
           title: "Oops...",
-          text: result.message,
-        })
-          .then(() => {})
-          .finally(() => {});
-      } else {
-        setMessage("Usuario registrado");
-        MySwal.fire({
-          icon: "success",
-          title: "En hora buena...",
-          text: result.message,
+          text: "Las Contraseñas no Coinciden!",
         }).then(() => {
-          navigate("/login");
+          console.log("OK");
         });
+        return;
       }
-    } catch (error) {
-      setMessage("Error al registrar el usuario");
-      console.error("Error registrando el usuario:", error);
+      if (!passwordRegex.test(password)) {
+        MySwal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, un número y un carácter especial.",
+        }).then(() => {
+          console.log("OK");
+        });
+        return;
+      }
+      try {
+        const result = await usuarioRegister({
+          usuario_tx: username,
+          clave_usuario_de: password,
+        });
+        if (!result.success) {
+          MySwal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: result.message,
+          })
+            .then(() => {})
+            .finally(() => {});
+        } else {
+          setMessage("Usuario registrado");
+          MySwal.fire({
+            icon: "success",
+            title: "En hora buena...",
+            text: result.message,
+          }).then(() => {
+            navigate("/login");
+          });
+        }
+      } catch (error) {
+        setMessage("Error al registrar el usuario");
+        console.error("Error registrando el usuario:", error);
+      }
+    } else {
+      console.log("Reestablece la contraseña");
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      const MySwal = withReactContent(Swal);
+      if (password !== confirmPassword) {
+        MySwal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Las Contraseñas no Coinciden!",
+        }).then(() => {
+          console.log("OK");
+        });
+        return;
+      }
+      if (!passwordRegex.test(password)) {
+        MySwal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, un número y un carácter especial.",
+        }).then(() => {
+          console.log("OK");
+        });
+        return;
+      }
+      try {
+        const result = await resetPs(token!, password);
+        console.log("result", result);
+        if (!result.success) {
+          MySwal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: result.message,
+          })
+            .then(() => {})
+            .finally(() => {});
+        } else {
+          setMessage("Usuario registrado");
+          MySwal.fire({
+            icon: "success",
+            title: "En hora buena...",
+            text: result.message,
+          }).then(() => {
+            navigate("/login");
+          });
+        }
+      } catch (error) {
+        setMessage("Error al registrar el usuario");
+        console.error("Error registrando el usuario:", error);
+      }
     }
   };
   return (
     <>
       <div className="max-w-md w-full p-6">
         <h1 className="text-3xl font-semibold mb-6 text-black text-center">
-          Ya estás a un paso de ingresar!
+          {isReset
+            ? "Reestablece tu Contraseña!"
+            : "Ya estás a un paso de ingresar!"}
         </h1>
         <h1 className="text-sm font-semibold mb-6 text-gray-500 text-center">
-          Bienvenido, crea tu contraseña para acceder
+          {isReset
+            ? "Reestablece tu contraseña para acceder"
+            : "Bienvenido, crea tu contraseña para acceder"}
         </h1>
         <div className="mt-4 flex flex-col lg:flex-row items-center justify-between"></div>
 

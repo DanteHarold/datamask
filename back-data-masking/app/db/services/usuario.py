@@ -60,3 +60,13 @@ def delete_usuario(db: Session, usuario_tx: str):
         db.delete(db_usuario)
         db.commit()
     return db_usuario
+
+def update_password(db: Session, usuario_tx: str, nueva_clave: str):
+    db_usuario = get_usuario(db, usuario_tx)
+    if db_usuario:
+        hashed_password = get_password_hash(nueva_clave)
+        db_usuario.clave_usuario_de = hashed_password
+        db.commit()
+        db.refresh(db_usuario)
+        return db_usuario
+    return None

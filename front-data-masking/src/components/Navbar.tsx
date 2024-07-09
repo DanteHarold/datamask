@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useAppStore } from "../stores/useAppStore";
 
 export default function Navbar() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-
+  const logStore = useAppStore((state) => state.log);
+  const updateLog = useAppStore((state) => state.updateLog);
   const toggleMenu = () => {
     setIsMenuVisible(!isMenuVisible);
   };
+
+  const handleLogout = async () => {
+    console.log("handleLogout");
+    console.log(logStore);
+    const res = await updateLog(new Date(), logStore.log_acceso_id);
+
+    console.log("Res : ", res);
+  };
+
   return (
     <nav className="flex dark:bg-slate-900 items-center relative justify-between mx-auto px-5 py-6 md:w-4/5 lg:w-3/5">
       <div>
@@ -59,7 +70,9 @@ export default function Navbar() {
                       />
                     </svg>
                   </span>
-                  <NavLink to="/login-verificar">Logout</NavLink>
+                  <NavLink to="/login-verificar" onClick={handleLogout}>
+                    Logout
+                  </NavLink>
                 </li>
               </ul>
             </div>

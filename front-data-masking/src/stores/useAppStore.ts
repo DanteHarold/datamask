@@ -5,13 +5,15 @@ import { EventosSliceType, createEventoSlice } from "./createEventoSlice";
 import { ParamSliceType, createParamSlice } from "./createParamsSlice";
 import { LogSliceType, createLogSlice } from "./createLogSlice";
 import { UsuariosSliceType, createUsuarioSlice } from "./createUsuarioSlice";
+import { AuthSliceType, createAuthSlice } from "./createAuthSlice";
 
 export const useAppStore = create<
   VistasSliceType &
     EventosSliceType &
     ParamSliceType &
     LogSliceType &
-    UsuariosSliceType
+    UsuariosSliceType &
+    AuthSliceType
 >()(
   devtools((...a) => ({
     ...createVistaSlice(...a),
@@ -19,5 +21,6 @@ export const useAppStore = create<
     ...createParamSlice(...a),
     ...createLogSlice(...a),
     ...createUsuarioSlice(...a),
+    ...createAuthSlice(...a),
   }))
 );

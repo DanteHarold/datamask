@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
+from app.db.services import usuario as crudusuario
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from app.db.session import get_db1
@@ -78,7 +79,7 @@ async def password_reset_request(email: EmailSchema, background_tasks: Backgroun
         raise HTTPException(status_code=404, detail="User not found")
     
     reset_token = create_reset_token(email.email)
-    reset_link = f"http://localhost:3000/reset-password?token={reset_token}"
+    reset_link = f"http://localhost:5173/login-password?token={reset_token}"
 
     message = MessageSchema(
         subject="Password Reset Request",
@@ -97,7 +98,6 @@ async def reset_password(token: str, new_password: str, db: Session = Depends(ge
     user = db.query(TDMASKParams).filter(TDMASKParams.email_usuario_de == email).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-
-    user.clave_usuario_de = new_password  # Make sure to hash the password in production
+    crudusuario.update_password(db,user.usuario_tx,new_password)
     db.commit()
     return {"message": "Password reset successful"}

@@ -90,6 +90,6 @@ export const LogAPIResponsSchema = z.object({
 export const LogAPIResponsSchemaPost = z.object({
   usuario_tx: z.string(),
   inicio_log_acceso_fh: z.date(),
-  fin_log_acceso_fh: z.date(),
+  fin_log_acceso_fh: z.date().nullable(),
 });
 export const LogsAPIResponseSchema = z.array(LogAPIResponsSchema);

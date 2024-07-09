@@ -34,6 +34,8 @@ class LogAccesoBase(BaseModel):
     usuario_tx: str
     inicio_log_acceso_fh: datetime
     fin_log_acceso_fh: datetime
+class LogPutBase(BaseModel):
+    fin_log_acceso_fh: datetime
 
 class LogAccesoCreate(LogAccesoBase):
     pass

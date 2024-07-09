@@ -1,41 +1,44 @@
 import { StateCreator } from "zustand";
-import { postLog, putLog } from "../services/AppService";
+import {
+  postLog,
+  putLog,
+  resetPassword,
+  sendResetPassword,
+} from "../services/AppService";
 import { Log, LogPost } from "../types/index";
 import axios from "axios";
 
-export type LogSliceType = {
+export type AuthSliceType = {
   log: Log;
   errorMessage: string;
-  fetchLog: (data: LogPost) => Promise<{
+  sendResetPassword: (data: string) => Promise<{
     success: boolean;
     message: string;
     idLog: number | undefined;
   }>;
-  updateLog: (
-    data: LogPost["fin_log_acceso_fh"],
-    logId: Log["log_acceso_id"]
+  resetPassword: (
+    token: string,
+    new_password: string
   ) => Promise<{
     success: boolean;
     message: string;
     idLog: number | undefined;
   }>;
 };
-export const createLogSlice: StateCreator<LogSliceType> = (set) => ({
+export const createAuthSlice: StateCreator<AuthSliceType> = (set) => ({
   log: {} as Log,
   errorMessage: "",
-  fetchLog: async (data) => {
+  sendResetPassword: async (data) => {
     try {
-      const log = await postLog(data);
-      console.log("Slice Res log", log);
-      set({ log });
-      console.log("Slice log", log);
+      const log = await sendResetPassword(data);
+      //   set({ log });
       return {
         success: true,
-        message: "Log de Acceso Registrado",
+        message: "Enviado con exito!",
         idLog: log?.log_acceso_id,
       };
     } catch (error) {
-      let errorMessage = "Error al Registrar Log de Acceso";
+      let errorMessage = "Error al reestablecer contraseña";
       if (axios.isAxiosError(error) && error.response) {
         errorMessage = error.response.data.detail || errorMessage;
       }
@@ -47,19 +50,18 @@ export const createLogSlice: StateCreator<LogSliceType> = (set) => ({
       };
     }
   },
-  updateLog: async (data, logId) => {
+  resetPassword: async (token, new_password) => {
     try {
-      const log = await putLog(data, logId);
-      console.log("Slice Res log", log);
-      set({ log });
-      console.log("Slice log", log);
+      const log = await resetPassword(token, new_password);
+      console.log("resetPassword Res log", log);
+      //   set({ log });
       return {
         success: true,
-        message: "Log de Acceso Registrado",
+        message: "Contraseña Reestablecida",
         idLog: log?.log_acceso_id,
       };
     } catch (error) {
-      let errorMessage = "Error al Registrar Log de Acceso";
+      let errorMessage = "Error al enviar Correo de recuperación";
       if (axios.isAxiosError(error) && error.response) {
         errorMessage = error.response.data.detail || errorMessage;
       }
